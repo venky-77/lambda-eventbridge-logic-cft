@@ -87,8 +87,8 @@ Resources:
       Environment:
         Variables:
           REDSHIFT_CLUSTER_ID: "your-cluster-id"
-          REDSHIFT_DB: "your-db-name"
-          REDSHIFT_USER: "your-db-user"
+          REDSHIFT_DB: "Redshift"
+          REDSHIFT_USER: "venky"
           S3_BUCKET: "your-s3-bucket-name"
           S3_PREFIX: "lambda/{{ schema_name }}_{{ table_name }}.csv"
           SQL_QUERY: "select * from {{ schema_name }}.{{ table_name }} limit 10;"
