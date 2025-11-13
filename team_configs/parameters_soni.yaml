@@ -1,0 +1,4 @@
+# team_configs/parameters_soni.yaml
+- schema_name: cases_base_case
+  table_name: alert_status_case
+  schedule_expression: "rate(5 minutes)"
