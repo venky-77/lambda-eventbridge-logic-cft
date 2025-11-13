@@ -1,0 +1,234 @@
+                              # Codebuild project without webhook
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a CodeBuild Project for Lambda + EventBridge Jinja2 automation.
+
+Parameters:
+  CloudformationTemplate:
+    Description: Cloudformation templte to be used by CodeBuild. Defaulted.
+    Type: String
+    Default: templates/lambda-eventbridge-cloudformation.yaml.j2
+
+  GitHubBranch:
+    Type: String
+    Description: GitHub branch to build from
+    Default: main
+
+  GitHubRepoName:
+    Type: String
+    Description: GitHub repository name
+    Default: lambda-eventbridge-cft
+
+  GitHubUrl:
+    Type: String
+    Description: GitHub HTTPS URL
+    Default: https://github.com/venky-77/lambda-eventbridge-cft
+
+  GitHubCodeConnectionsArn:
+    Type: String
+    Description: CodeConnections ARN for GitHub
+    Default: arn:aws:codeconnections:us-east-1:794038240530:connection/e1451198-782d-4d06-bec1-8f9266072524
+
+  BuildSpec:
+    Type: String
+    Description: Path to buildspec file
+    Default: buildspec.yaml
+
+  ComputeType:
+    Type: String
+    Default: BUILD_GENERAL1_SMALL
+    AllowedValues:
+      - BUILD_GENERAL1_SMALL
+      - BUILD_GENERAL1_MEDIUM
+      - BUILD_GENERAL1_LARGE
+
+  OperatingSystem:
+    Type: String
+    Default: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+
+Resources:
+  LambdaEventBridgeCodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: Lambda-EventBridge-Jinja2-Deploy
+      Description: Automates Lambda + EventBridge deployment using Jinja2 and CloudFormation
+      ServiceRole: arn:aws:iam::794038240530:role/service-role/codebuild-New-Project-service-role
+      Source:
+        Type: GITHUB
+        Location: !Ref GitHubUrl
+        Auth:
+          Type: CODECONNECTIONS
+          Resource: !Ref GitHubCodeConnectionsArn
+        GitCloneDepth: 1
+        ReportBuildStatus: true
+        BuildSpec: !Ref BuildSpec
+      SourceVersion: !Ref GitHubBranch
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: !Ref ComputeType
+        Image: !Ref OperatingSystem
+        EnvironmentVariables:
+          - Name: GITHUB_BRANCH
+            Value: !Ref GitHubBranch
+          - Name: GITHUB_REPO_NAME
+            Value: !Ref GitHubRepoName
+          - Name: REGION
+            Value: !Sub ${AWS::Region}
+          - Name: CLOUDFORMATION_TEMPLATE
+            Value: !Ref CloudformationTemplate
+      TimeoutInMinutes: 10
+
+Outputs:
+  CodeBuildProjectName:
+    Description: Name of the CodeBuild project
+    Value: !Ref LambdaEventBridgeCodeBuild
+
+
+
+
+
+
+
+                              # codebuild with webhook
+
+
+# AWSTemplateFormatVersion: "2010-09-09"
+# Description: Creates a CodeBuild Project for Storm.
+# Parameters:
+#   BuildSpec:
+#     Description: Buildspec file to use for the the CodeBuild pipeline. Defaulted.
+#     Type: String
+#     Default: cicd-pipeline/buildspec.yaml
+#   CloudformationTemplate:
+#     Description: Cloudformation templte to be used by CodeBuild. Defaulted.
+#     Type: String
+#     Default: lambda-eventbridge-cloudformation.yaml
+#   ComputeType:
+#     Description: Codebuild environment compute type. Defaulted.
+#     Type: String
+#     AllowedValues:
+#       - BUILD_GENERAL1_SMALL
+#       - BUILD_GENERAL1_MEDIUM
+#       - BUILD_GENERAL1_LARGE
+#     Default: BUILD_GENERAL1_SMALL
+#     ConstraintDescription: ComputeType must be one of the following - BUILD_GENERAL1_SMALL, BUILD_GENERAL1_MEDIUM, BUILD_GENERAL1_LARGE.
+#   GitHubBranch:
+#     Description: Branch of the GitHub Repository. Passed via --parameter-override either from local_deploy.sh or buildspec.yaml and sourced from /environment/<account>.json.
+#     Type: String
+#     AllowedPattern: ^[A-Za-z-]*$
+#     ConstraintDescription: Must contain non-numeric characters with optional hyphen.
+#   GitHubCodeConnectionsArn:
+#     Description: ARN of the Code Connection. Passed via --parameter-override either from local_deploy.sh or buildspec.yaml and sourced from /environment/<account>.json.
+#     Type: String
+#   GitHubRepoName:
+#     Description: Name of GitHub Repository. Passed via --parameter-override either from local_deploy.sh or buildspec.yaml.
+#     Type: String
+#   GitHubUrl:
+#     Description: HTTPS URL for GitHub Repository. Passed via --parameter-override either from local_deploy.sh or buildspec.yaml and sourced from codebuild-main/projects/*.json.
+#     Type: String
+#   KmsKey:
+#     Description: Key for encrypting the build output artifacts. Passed via --parameter-override either from local_deploy.sh or buildspec.yaml and sourced from /environment/<account>.json.
+#     Type: String
+#   OperatingSystem:
+#     Description: OS of the CodeBuild Project. Defaulted
+#     Type: String
+#     Default: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+#   Product:
+#     Description: The name of the Product Team. Defaulted.
+#     Type: String
+#     Default: stormline
+#   ProductEmail:
+#     Description: Email address for reference purposes. Defaulted.
+#     Type: String
+#     Default: Team
+#   TimeoutInMinutes:
+#     Description: Codebuild timeout in minutes. Defaulted.
+#     Type: Number
+#     Default: 10
+#   AppCid:
+#     Description: Application CID for reference purposes. Defaulted.
+#     Type: String
+#     Default: CID24
+#   Environment:
+#     Description: Environment for reference purposes. Defaulted.
+#     Type: String
+#     Default: nonprod
+
+# Metadata:
+#   AWS::CloudFormation::Interface:
+#     ParameterGroups:
+#       - Label:
+#           default: "Source"
+#         Parameters:
+#           - GitHubBranch
+#           - GitHubRepo
+#           - GitHubUrl
+
+# Resources:
+#   StormlineRsUnloadPocBuildProject:
+#     Type: AWS::CodeBuild::Project
+#     Properties:
+#       Name: !Join ["-",[!Ref Product, "rs-unload-poc-codebuild-cft"]]
+#       Description: "POC CodeBuild project for deploying Lambda Redshift Unload."
+#       ServiceRole:
+#         !Join ["",["arn:",!Ref "AWS::Partition",":iam::",!Ref "AWS::AccountId",":role/",!Ref Product,"-codebuild"]]
+#       EncryptionKey: !Ref KmsKey
+#       Source:
+#         Auth:
+#           Type: CODECONNECTIONS
+#           Resource: !Ref GitHubCodeConnectionsArn
+#         Type: GITHUB
+#         Location: !Ref GitHubUrl
+#         GitCloneDepth: 1
+#         ReportBuildStatus: true
+#         BuildSpec: !Ref BuildSpec
+#       SourceVersion: !Ref GitHubBranch
+#       Artifacts:
+#         Type: NO_ARTIFACTS
+#       VpcConfig:
+#         SecurityGroupIds:
+#           - '{{security-group-id}}'
+#         Subnets:
+#           - '{{subnet-1}}'
+#           - '{{subnet-2}}'
+#         VpcId: '{{default}}'
+#       Environment:
+#         Type: LINUX_CONTAINER
+#         ComputeType: !Ref ComputeType
+#         Image: !Ref OperatingSystem
+#         EnvironmentVariables:
+#           - Name: ACCOUNT_ID
+#             Value: !Sub "${AWS::AccountId}"
+#           - Name: CLOUDFORMATION_TEMPLATE
+#             Value: !Ref CloudformationTemplate
+#           - Name: GITHUB_BRANCH
+#             Value: !Ref GitHubBranch
+#           - Name: GITHUB_REPO_NAME
+#             Value: !Ref GitHubRepoName
+#           - Name: PRODUCT
+#             Value: !Ref Product
+#           - Name: REGION
+#             Value: !Sub "${AWS::Region}"
+#           - Name: APPCID
+#             Value: !Ref AppCid
+#           - Name: ENVIRONMENT
+#             Value: !Ref Environment
+#       TimeoutInMinutes: !Ref TimeoutInMinutes
+#       Triggers:
+#         BuildType: BUILD
+#         FilterGroups:
+#           - # Filter Group 1
+#             - Type: EVENT
+#               Pattern: PULL_REQUEST_MERGED
+#             - Type: BASE_REF
+#               Pattern: !Join ["",["^refs/heads/",!Ref GitHubBranch, "$"]]
+#         Webhook: true
+#       Tags:
+#           - Key: appcid
+#             Value: !Ref AppCid
+#           - Key: product
+#             Value: !Ref Product
+#           - Key: environment
+#             Value: !Ref Environment
