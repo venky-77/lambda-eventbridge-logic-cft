@@ -1,0 +1,3 @@
+# team_configs/parameters_alex.yaml
+- schema_name: cases_base
+  table_name: alert_status

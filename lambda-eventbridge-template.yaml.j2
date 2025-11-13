@@ -1,0 +1,112 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda + EventBridge for {{ table_name }}
+
+Resources:
+
+  LambdaEventBridge{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: Lambda-eventbridge-cft-{{ schema_name }}-{{ table_name }}
+      Runtime: python3.9
+      Handler: index.lambda_handler
+      Role: arn:aws:iam::794038240530:role/lambda-role
+      Code:
+        ZipFile: |
+          import boto3
+          import csv
+          import io
+          import os
+
+          def lambda_handler(event, context):
+              cluster_id   = os.environ['REDSHIFT_CLUSTER_ID']
+              database     = os.environ['REDSHIFT_DB']
+              db_user      = os.environ['REDSHIFT_USER']
+              sql_query    = os.environ['SQL_QUERY']
+              s3_bucket    = os.environ['S3_BUCKET']
+              s3_prefix    = os.environ['S3_PREFIX']
+
+              sts_connection = boto3.client('sts')
+              acct_b = sts_connection.assume_role(
+                  RoleArn='arn:aws:iam::123456789012:role/cross-account-role',
+                  RoleSessionName="cross_acct_lambda"
+              )
+
+              ACCESS_KEY = acct_b['Credentials']['AccessKeyId']
+              SECRET_KEY = acct_b['Credentials']['SecretAccessKey']
+              SESSION_TOKEN = acct_b['Credentials']['SessionToken']
+
+              rsd = boto3.client(
+                  'redshift-data',
+                  aws_access_key_id=ACCESS_KEY,
+                  aws_secret_access_key=SECRET_KEY,
+                  aws_session_token=SESSION_TOKEN,
+              )
+
+              s3 = boto3.client("s3")
+
+              print("Executing query on Redshift...")
+              response = rsd.execute_statement(
+                  ClusterIdentifier=cluster_id,
+                  Database=database,
+                  DbUser=db_user,
+                  Sql=sql_query
+              )
+
+              query_id = response['Id']
+              print("query_id...", query_id)
+
+              status = "SUBMITTED"
+              while status in ["SUBMITTED", "PICKED", "STARTED"]:
+                  desc = rsd.describe_statement(Id=query_id)
+                  status = desc['Status']
+
+              if status != "FINISHED":
+                  raise Exception(f"Query failed with status: {status}")
+
+              result = rsd.get_statement_result(Id=query_id)
+
+              print("Columns:", [col['name'] for col in result['ColumnMetadata']])
+              print("Cursor Info:", result.keys())
+
+              output = io.StringIO()
+              writer = csv.writer(output)
+
+              writer.writerow([col['name'] for col in result['ColumnMetadata']])
+              for row in result['Records']:
+                  writer.writerow([list(field.values())[0] if field else None for field in row])
+
+              s3.put_object(
+                  Bucket=s3_bucket,
+                  Key=s3_prefix,
+                  Body=output.getvalue()
+              )
+
+              print(f"Data written to s3://{s3_bucket}/{s3_prefix}")
+              return {"status": "success", "s3_file": f"s3://{s3_bucket}/{s3_prefix}"}
+ 
+      Environment:
+        Variables:
+          REDSHIFT_CLUSTER_ID: "your-cluster-id"
+          REDSHIFT_DB: "your-db-name"
+          REDSHIFT_USER: "your-db-user"
+          S3_BUCKET: "your-s3-bucket-name"
+          S3_PREFIX: "lambda/{{ schema_name }}_{{ table_name }}.csv"
+          SQL_QUERY: "select * from {{ schema_name }}.{{ table_name }} limit 10;"
+
+  EventBridgeRule{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: EB-Rule-{{ schema_name }}-{{ table_name }}
+      ScheduleExpression: "{{ schedule_expression }}"
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt LambdaEventBridge{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}.Arn
+          Id: TargetLambda{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}
+
+  LambdaInvokePermission{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaEventBridge{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt EventBridgeRule{{ schema_name | replace("_", "") }}{{ table_name | replace("_", "") }}.Arn
