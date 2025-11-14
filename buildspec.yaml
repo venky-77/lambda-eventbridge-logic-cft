@@ -1,65 +1,3 @@
-version: 0.2
-
-phases:
-  install:
-    runtime-versions:
-      python: 3.9
-    commands:
-      - echo "🔧 Installing dependencies..."
-      - pip install Jinja2 PyYAML
-
-  build:
-    commands:
-      - echo "📦 Rendering CloudFormation templates..."
-      - python render.py
-      - echo "📂 Contents of output/:"
-      - ls -l output/ || echo "No templates generated."
-
-  post_build:
-    commands:
-      - echo "🚀 Deploying rendered templates..."
-      - |
-        if [ -d output ] && [ "$(ls -A output)" ]; then
-          for file in output/*.yaml; do
-            stack_name=$(basename "$file" .yaml | sed 's/_/-/g')
-            echo "Deploying stack: $stack_name"
-            aws cloudformation deploy \
-              --template-file "$file" \
-              --stack-name "$stack_name" \
-              --capabilities CAPABILITY_NAMED_IAM \
-              --no-fail-on-empty-changeset
-          done
-        else
-          echo "✅ No templates to deploy. Skipping."
-        fi
-
-artifacts:
-  files:
-    - output/*.yaml
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # version: 0.2
 
 # phases:
@@ -67,56 +5,18 @@ artifacts:
 #     runtime-versions:
 #       python: 3.9
 #     commands:
-#       - echo "[Starting Install]"
+#       - echo "🔧 Installing dependencies..."
 #       - pip install Jinja2 PyYAML
-#       - SOURCE_VERSION=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-
-#   pre_build:
-#     commands:
-#       - echo "[Starting Pre-Build]"
-#       - echo "Printing Environmental Variables..."
-#       - echo "Account Id -> $ACCOUNT_ID"
-#       - echo "Cloudformation Template -> $CLOUDFORMATION_TEMPLATE"
-#       - echo "CodeBuild Webhook Event -> $CODEBUILD_WEBHOOK_EVENT"
-#       - echo "GitHub Branch -> $GITHUB_BRANCH"
-#       - echo "GitHub Repo Name -> $GITHUB_REPO_NAME"
-#       - echo "Product -> $PRODUCT"
-#       - echo "Region -> $REGION"
-#       - echo "AppCid -> $APPCID"
-#       - echo "Environment -> $ENVIRONMENT"
-
-#       - echo "Starting Template Validation"
 
 #   build:
 #     commands:
-#       - echo "[Starting Main-Build]"
-#       - echo "📦 Rendering CloudFormation templates from parameter files..."
+#       - echo "📦 Rendering CloudFormation templates..."
 #       - python render.py
 #       - echo "📂 Contents of output/:"
 #       - ls -l output/ || echo "No templates generated."
 
-#       - |
-#         if [ "${CODEBUILD_WEBHOOK_EVENT}" = "PULL_REQUEST_MERGED" ] || [ "${MANUAL_TRIGGER}" = "TRUE" ]; then
-#           echo
-#           echo "Starting Cloudformation Deployment for Projects in /project"
-
-#           echo
-#           echo "----Deploying Cloudformation Stack - ${stack_name}----"
-#           echo
-#           echo "----Variables Set in buildspec.yaml----"
-#           echo "Cloudformation Template: ${CLOUDFORMATION_TEMPLATE}"
-#           echo "GitHub Repo Name: ${github_repo_name}"
-#           echo "Stack Name: ${stack_name}"
-#           echo "Lambda Function Name: ${lambda_function_name}"
-#           echo "EventBridge Scheduler Rule Name: ${eventbridge_scheduler_rule_name}"
-#           echo
-#           echo "----CloudFormation Deploy Command----"
-
-#         fi
-
 #   post_build:
 #     commands:
-#       - echo "[Starting Post-Build]"
 #       - echo "🚀 Deploying rendered templates..."
 #       - |
 #         if [ -d output ] && [ "$(ls -A output)" ]; then
@@ -127,8 +27,7 @@ artifacts:
 #               --template-file "$file" \
 #               --stack-name "$stack_name" \
 #               --capabilities CAPABILITY_NAMED_IAM \
-#               --no-fail-on-empty-changeset \
-            
+#               --no-fail-on-empty-changeset
 #           done
 #         else
 #           echo "✅ No templates to deploy. Skipping."
@@ -137,6 +36,97 @@ artifacts:
 # artifacts:
 #   files:
 #     - output/*.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - echo "[Starting Install]"
+      - pip install Jinja2 PyYAML
+      - SOURCE_VERSION=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+  pre_build:
+    commands:
+      - echo "[Starting Pre-Build]"
+      - echo "Printing Environmental Variables..."
+      - echo "Account Id -> $ACCOUNT_ID"
+      - echo "Cloudformation Template -> $CLOUDFORMATION_TEMPLATE"
+      - echo "CodeBuild Webhook Event -> $CODEBUILD_WEBHOOK_EVENT"
+      - echo "GitHub Branch -> $GITHUB_BRANCH"
+      - echo "GitHub Repo Name -> $GITHUB_REPO_NAME"
+      - echo "Product -> $PRODUCT"
+      - echo "Region -> $REGION"
+      - echo "AppCid -> $APPCID"
+      - echo "Environment -> $ENVIRONMENT"
+
+      - echo "Starting Template Validation"
+
+  build:
+    commands:
+      - echo "[Starting Main-Build]"
+      - echo "📦 Rendering CloudFormation templates from parameter files..."
+      - python render.py
+      - echo "📂 Contents of output/:"
+      - ls -l output/ || echo "No templates generated."
+
+      - |
+        if [ "${CODEBUILD_WEBHOOK_EVENT}" = "PULL_REQUEST_MERGED" ] || [ "${MANUAL_TRIGGER}" = "TRUE" ]; then
+          echo
+          echo "Starting Cloudformation Deployment for Projects in /project"
+
+          echo
+          echo "----Deploying Cloudformation Stack - ${stack_name}----"
+          echo
+          echo "----Variables Set in buildspec.yaml----"
+          echo "Cloudformation Template: ${CLOUDFORMATION_TEMPLATE}"
+          echo "GitHub Repo Name: ${github_repo_name}"
+          echo "Stack Name: ${stack_name}"
+          echo "Lambda Function Name: ${lambda_function_name}"
+          echo "EventBridge Scheduler Rule Name: ${eventbridge_scheduler_rule_name}"
+          echo
+          echo "----CloudFormation Deploy Command----"
+
+        fi
+
+  post_build:
+    commands:
+      - echo "[Starting Post-Build]"
+      - echo "🚀 Deploying rendered templates..."
+      - |
+        if [ -d output ] && [ "$(ls -A output)" ]; then
+          for file in output/*.yaml; do
+            stack_name=$(basename "$file" .yaml | sed 's/_/-/g')
+            echo "Deploying stack: $stack_name"
+            aws cloudformation deploy \
+              --template-file "$file" \
+              --stack-name "$stack_name" \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --no-fail-on-empty-changeset \
+            
+          done
+        else
+          echo "✅ No templates to deploy. Skipping."
+        fi
+
+artifacts:
+  files:
+    - output/*.yaml
 
 
 
