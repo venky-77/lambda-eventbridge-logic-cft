@@ -246,3 +246,192 @@ Successfully created/updated stack - lambda-eb-victory
 [Container] 2025/11/14 10:47:39.440645 Report auto-discover file discovery took 0.009644 seconds
 [Container] 2025/11/14 10:47:39.440657 Phase complete: UPLOAD_ARTIFACTS State: SUCCEEDED
 [Container] 2025/11/14 10:47:39.440665 Phase context status code:  Message: 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[Container] 2025/11/14 10:50:28.331508 Running on CodeBuild On-demand
+[Container] 2025/11/14 10:50:28.331522 Waiting for agent ping
+[Container] 2025/11/14 10:50:29.736809 Waiting for DOWNLOAD_SOURCE
+[Container] 2025/11/14 10:50:30.560725 Phase is DOWNLOAD_SOURCE
+[Container] 2025/11/14 10:50:30.562359 CODEBUILD_SRC_DIR=/codebuild/output/src701641305/src/github.com/venky-77/lambda-eventbridge-logic-cft
+[Container] 2025/11/14 10:50:30.563057 YAML location is /codebuild/output/src701641305/src/github.com/venky-77/lambda-eventbridge-logic-cft/buildspec.yaml
+[Container] 2025/11/14 10:50:30.571993 Setting HTTP client timeout to higher timeout for Github and GitHub Enterprise sources
+[Container] 2025/11/14 10:50:30.572097 Processing environment variables
+[Container] 2025/11/14 10:50:30.899197 Selecting 'python' runtime version '3.9' based on manual selections...
+[Container] 2025/11/14 10:50:30.900411 Running command echo "Installing Python version 3.9 ..."
+Installing Python version 3.9 ...
+
+[Container] 2025/11/14 10:50:30.909604 Running command pyenv global  $PYTHON_39_VERSION
+
+[Container] 2025/11/14 10:50:30.961029 Moving to directory /codebuild/output/src701641305/src/github.com/venky-77/lambda-eventbridge-logic-cft
+[Container] 2025/11/14 10:50:30.961144 Cache is not defined in the buildspec
+[Container] 2025/11/14 10:50:31.150841 Skip cache due to: no paths specified to be cached
+[Container] 2025/11/14 10:50:31.151253 Registering with agent
+[Container] 2025/11/14 10:50:31.319072 Phases found in YAML: 4
+[Container] 2025/11/14 10:50:31.319101  INSTALL: 3 commands
+[Container] 2025/11/14 10:50:31.319110  PRE_BUILD: 12 commands
+[Container] 2025/11/14 10:50:31.319114  BUILD: 6 commands
+[Container] 2025/11/14 10:50:31.319118  POST_BUILD: 3 commands
+[Container] 2025/11/14 10:50:31.319439 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED
+[Container] 2025/11/14 10:50:31.319456 Phase context status code:  Message: 
+[Container] 2025/11/14 10:50:31.814366 Entering phase INSTALL
+[Container] 2025/11/14 10:50:31.961265 Running command echo "[Starting Install]"
+[Starting Install]
+
+[Container] 2025/11/14 10:50:31.968863 Running command pip install Jinja2 PyYAML
+Requirement already satisfied: Jinja2 in /root/.pyenv/versions/3.9.17/lib/python3.9/site-packages (3.1.6)
+Requirement already satisfied: PyYAML in /root/.pyenv/versions/3.9.17/lib/python3.9/site-packages (6.0.3)
+Requirement already satisfied: MarkupSafe>=2.0 in /root/.pyenv/versions/3.9.17/lib/python3.9/site-packages (from Jinja2) (3.0.3)
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+WARNING: You are using pip version 21.3.1; however, version 25.3 is available.
+You should consider upgrading via the '/root/.pyenv/versions/3.9.17/bin/python3.9 -m pip install --upgrade pip' command.
+
+[Container] 2025/11/14 10:50:37.206383 Running command SOURCE_VERSION=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+[Container] 2025/11/14 10:50:37.378617 Phase complete: INSTALL State: SUCCEEDED
+[Container] 2025/11/14 10:50:37.378636 Phase context status code:  Message: 
+[Container] 2025/11/14 10:50:37.419831 Entering phase PRE_BUILD
+[Container] 2025/11/14 10:50:37.420887 Running command echo "[Starting Pre-Build]"
+[Starting Pre-Build]
+
+[Container] 2025/11/14 10:50:37.428161 Running command echo "Printing Environmental Variables..."
+Printing Environmental Variables...
+
+[Container] 2025/11/14 10:50:37.434923 Running command echo "Account Id -> $ACCOUNT_ID"
+Account Id -> 
+
+[Container] 2025/11/14 10:50:37.441576 Running command echo "Cloudformation Template -> $CLOUDFORMATION_TEMPLATE"
+Cloudformation Template -> 
+
+[Container] 2025/11/14 10:50:37.448445 Running command echo "CodeBuild Webhook Event -> $CODEBUILD_WEBHOOK_EVENT"
+CodeBuild Webhook Event -> 
+
+[Container] 2025/11/14 10:50:37.455511 Running command echo "GitHub Branch -> $GITHUB_BRANCH"
+GitHub Branch -> main
+
+[Container] 2025/11/14 10:50:37.462401 Running command echo "GitHub Repo Name -> $GITHUB_REPO_NAME"
+GitHub Repo Name -> lambda-eventbridge-logic-cft
+
+[Container] 2025/11/14 10:50:37.469375 Running command echo "Product -> $PRODUCT"
+Product -> 
+
+[Container] 2025/11/14 10:50:37.476418 Running command echo "Region -> $REGION"
+Region -> us-east-1
+
+[Container] 2025/11/14 10:50:37.483235 Running command echo "AppCid -> $APPCID"
+AppCid -> 
+
+[Container] 2025/11/14 10:50:37.490006 Running command echo "Environment -> $ENVIRONMENT"
+Environment -> 
+
+[Container] 2025/11/14 10:50:37.496684 Running command echo "Starting Template Validation"
+Starting Template Validation
+
+[Container] 2025/11/14 10:50:37.503528 Phase complete: PRE_BUILD State: SUCCEEDED
+[Container] 2025/11/14 10:50:37.503544 Phase context status code:  Message: 
+[Container] 2025/11/14 10:50:37.543009 Entering phase BUILD
+[Container] 2025/11/14 10:50:37.544147 Running command echo "[Starting Main-Build]"
+[Starting Main-Build]
+
+[Container] 2025/11/14 10:50:37.551301 Running command echo "📦 Rendering CloudFormation templates from parameter files..."
+📦 Rendering CloudFormation templates from parameter files...
+
+[Container] 2025/11/14 10:50:37.558225 Running command python render.py
+✅ Generated: output/lambda-eb-alex.yaml from parameters_alex.yaml
+✅ Generated: output/lambda-eb-soni.yaml from parameters_soni.yaml
+✅ Generated: output/lambda-eb-victory.yaml from parameters_victory.yaml
+
+[Container] 2025/11/14 10:50:37.702697 Running command echo "📂 Contents of output/:"
+📂 Contents of output/:
+
+[Container] 2025/11/14 10:50:37.710007 Running command ls -l output/ || echo "No templates generated."
+total 16
+-rw-r--r-- 1 root root 4033 Nov 14 10:50 lambda-eb-alex.yaml
+-rw-r--r-- 1 root root 4134 Nov 14 10:50 lambda-eb-soni.yaml
+-rw-r--r-- 1 root root 4045 Nov 14 10:50 lambda-eb-victory.yaml
+
+[Container] 2025/11/14 10:50:37.718446 Running command if [ "${CODEBUILD_WEBHOOK_EVENT}" = "PULL_REQUEST_MERGED" ] || [ "${MANUAL_TRIGGER}" = "TRUE" ]; then
+  echo
+  echo "Starting Cloudformation Deployment for Projects in /project"
+
+  echo
+  echo "----Deploying Cloudformation Stack - ${stack_name}----"
+  echo
+  echo "----Variables Set in buildspec.yaml----"
+  echo "Cloudformation Template: ${CLOUDFORMATION_TEMPLATE}"
+  echo "GitHub Repo Name: ${github_repo_name}"
+  echo "Stack Name: ${stack_name}"
+  echo "Lambda Function Name: ${lambda_function_name}"
+  echo "EventBridge Scheduler Rule Name: ${eventbridge_scheduler_rule_name}"
+  echo
+  echo "----CloudFormation Deploy Command----"
+
+fi
+
+
+[Container] 2025/11/14 10:50:37.725362 Phase complete: BUILD State: SUCCEEDED
+[Container] 2025/11/14 10:50:37.725378 Phase context status code:  Message: 
+[Container] 2025/11/14 10:50:37.758770 Entering phase POST_BUILD
+[Container] 2025/11/14 10:50:37.759941 Running command echo "[Starting Post-Build]"
+[Starting Post-Build]
+
+[Container] 2025/11/14 10:50:37.767105 Running command echo "🚀 Deploying rendered templates..."
+🚀 Deploying rendered templates...
+
+[Container] 2025/11/14 10:50:37.773826 Running command if [ -d output ] && [ "$(ls -A output)" ]; then
+  for file in output/*.yaml; do
+    stack_name=$(basename "$file" .yaml | sed 's/_/-/g')
+    echo "Deploying stack: $stack_name"
+    aws cloudformation deploy \
+      --template-file "$file" \
+      --stack-name "$stack_name" \
+      --capabilities CAPABILITY_NAMED_IAM \
+      --no-fail-on-empty-changeset \
+    
+  done
+else
+  echo "✅ No templates to deploy. Skipping."
+fi
+
+Deploying stack: lambda-eb-alex
+
+Waiting for changeset to be created..
+
+No changes to deploy. Stack lambda-eb-alex is up to date
+Deploying stack: lambda-eb-soni
+
+Waiting for changeset to be created..
+
+No changes to deploy. Stack lambda-eb-soni is up to date
+Deploying stack: lambda-eb-victory
+
+Waiting for changeset to be created..
+Waiting for stack create/update to complete
+Successfully created/updated stack - lambda-eb-victory
+
+[Container] 2025/11/14 10:52:46.512147 Phase complete: POST_BUILD State: SUCCEEDED
+[Container] 2025/11/14 10:52:46.512168 Phase context status code:  Message: 
+[Container] 2025/11/14 10:52:46.767837 Set report auto-discover timeout to 5 seconds
+[Container] 2025/11/14 10:52:46.767883 Expanding base directory path:  .
+[Container] 2025/11/14 10:52:46.770942 Assembling file list
+[Container] 2025/11/14 10:52:46.770953 Expanding .
+[Container] 2025/11/14 10:52:46.773885 Expanding file paths for base directory .
+[Container] 2025/11/14 10:52:46.773900 Assembling file list
+[Container] 2025/11/14 10:52:46.773904 Expanding **/*
+[Container] 2025/11/14 10:52:46.777156 No matching auto-discover report paths found
+[Container] 2025/11/14 10:52:46.777172 Report auto-discover file discovery took 0.009335 seconds
+[Container] 2025/11/14 10:52:46.777266 Phase complete: UPLOAD_ARTIFACTS State: SUCCEEDED
+[Container] 2025/11/14 10:52:46.777273 Phase context status code:  Message: 
